@@ -1,62 +1,71 @@
-{ lib, buildPythonPackage, fetchPypi, isPy27
-, entrypoints
-, glibcLocales
-, ipython
-, jinja2
-, jsonschema
-, numpy
-, pandas
-, pytestCheckHook
+{ lib
+, buildPythonPackage
+, fetchFromGitHub
 , pythonOlder
-, recommonmark
-, six
-, sphinx
+
+# Run dependencies
+, hatchling
 , toolz
-, typing ? null
+, numpy
+, jsonschema
+, typing-extensions
+, pandas
+, jinja2
+, importlib-metadata
+
+# Build, dev and test dependencies
+, ipython
+, pytestCheckHook
 , vega_datasets
+, black
+, sphinx
 }:
 
 buildPythonPackage rec {
   pname = "altair";
-  version = "4.2.0";
-  disabled = isPy27;
+  version = "5.0.1";
+  format = "pyproject";
+  disabled = pythonOlder "3.7";
 
-  src = fetchPypi {
-    inherit pname version;
-    sha256 = "d87d9372e63b48cd96b2a6415f0cf9457f50162ab79dc7a31cd7e024dd840026";
+  # We use fetch from Github because the Pypi is missing the tests
+  src = fetchFromGitHub {
+    owner = "altair-viz";
+    repo = "altair";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-7bTrfryu4oaodVGNFNlVk9vXmDA5/9ahvCmvUGzZ5OQ=";
   };
 
   propagatedBuildInputs = [
-    entrypoints
+    jinja2
     jsonschema
     numpy
     pandas
-    six
     toolz
-    jinja2
-  ] ++ lib.optionals (pythonOlder "3.5") [ typing ];
+  ] ++ lib.optionals (pythonOlder "3.8") [ importlib-metadata ]
+    ++ lib.optionals (pythonOlder "3.11") [ typing-extensions ];
 
-  checkInputs = [
-    glibcLocales
+  nativeCheckInputs = [
+    hatchling
+    black
     ipython
-    pytestCheckHook
-    recommonmark
     sphinx
     vega_datasets
+    pytestCheckHook
   ];
 
   pythonImportsCheck = [ "altair" ];
 
-  # avoid examples directory, which fetches web resources
-  preCheck = ''
-    cd altair/tests
-  '';
+  disabledTestPaths = [
+      "tests/test_examples.py" # Disabled because it uses network
+      "tests/vegalite/v5/test_api.py" # TODO: Disabled because of missing altair_viewer package
+  ];
 
   meta = with lib; {
     description = "A declarative statistical visualization library for Python.";
-    homepage = "https://github.com/altair-viz/altair";
+    homepage = "https://altair-viz.github.io";
     license = licenses.bsd3;
     maintainers = with maintainers; [ teh ];
     platforms = platforms.unix;
   };
+
 }
