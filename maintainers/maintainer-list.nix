@@ -15971,4 +15971,10 @@
     github = "wuyoli";
     githubId = 104238274;
   };
+  vinetos = {
+    name = "vinetos";
+    email = "vinetosdev@gmail.com";
+    github = "vinetos";
+    githubId = 10145351;
+  };
 }

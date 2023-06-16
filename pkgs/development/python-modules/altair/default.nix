@@ -64,7 +64,7 @@ buildPythonPackage rec {
     description = "A declarative statistical visualization library for Python.";
     homepage = "https://altair-viz.github.io";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ teh ];
+    maintainers = with maintainers; [ teh vinetos ];
     platforms = platforms.unix;
   };
 
