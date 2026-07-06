@@ -6,12 +6,12 @@
 
 appimageTools.wrapType2 rec {
   pname = "kchat";
-  version = "3.3.3";
+  version = "3.5.0-beta.9";
 
   src = fetchurl {
     url = "https://download.storage5.infomaniak.com/kchat/kchat-desktop-${version}-linux-x86_64.AppImage";
     name = "kchat-${version}.AppImage";
-    hash = "sha256-5Nk2IMGk7BDDL7fuoOBO3wEcbtJDDDnQvUiqa8Pt8yU=";
+    hash = "sha256-GJZQCXkLDw90JvpB6WmR9Kg3Xf4WPlH48ME+xw/2v70=";
   };
 
   extraInstallCommands =
@@ -19,15 +19,12 @@ appimageTools.wrapType2 rec {
       contents = appimageTools.extractType2 { inherit pname version src; };
     in
     ''
-      mkdir -p "$out/share/applications"
-      mkdir -p "$out/share/lib/kchat"
-      cp -r ${contents}/{locales,resources} "$out/share/lib/kchat"
-      cp -r ${contents}/usr/* "$out"
-      cp "${contents}/kchat-desktop.desktop" "$out/share/applications/"
-      mv "$out/bin/kchat" "$out/bin/${meta.mainProgram}" || true
       install -m 444 -D ${contents}/kchat-desktop.desktop $out/share/applications/kchat-desktop.desktop
-      substituteInPlace $out/share/applications/kchat-desktop.desktop --replace-fail 'Exec=AppRun' 'Exec=${meta.mainProgram}'
-    '';
+      install -m 444 -D ${contents}/usr/share/icons/hicolor/0x0/apps/kchat-desktop.png $out/share/icons/hicolor/0x0/apps/kchat-desktop.png
+
+            substituteInPlace $out/share/applications/kchat-desktop.desktop --replace 'Exec=AppRun' 'Exec=kchat'
+
+   '';
 
   meta = {
     description = "Instant messaging service part of Infomaniak KSuite";
